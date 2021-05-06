@@ -102,8 +102,12 @@
          */
         public function getResponse(RequestInterface $request)
         {
-            $response = $this->sendRequest($request);
-
+            try {
+                $response = $this->getHttpClient()->send($request);
+            } catch (BadResponseException $e) {
+                $response = $e->getResponse();
+            }
+            
             try {
                 $parsed = $this->parseResponse($response);
                 $this->checkResponse($response, $parsed);
@@ -113,7 +117,7 @@
                 throw new ClientException($e->getMessage(), $request, $response);
             }
 
-            return $parsed;
+            return $response;
         }
 
         /**
